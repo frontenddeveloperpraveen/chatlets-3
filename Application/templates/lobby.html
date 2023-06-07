@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby-Chatlets</title>
+    <link rel="shortcut icon" type="image/x-icon" href="https://static.vecteezy.com/system/resources/previews/000/422/983/original/vector-chat-icon.jpg" />
+</head>
+<body>
+  <style>
+    html{
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+    .gif{
+        margin-top: 100px;
+    }
+    
+    @media all and (max-width:553px){
+        img{
+            width: 80%;
+        }
+        html{
+            font-size: 24px;
+        }
+        .gif{
+            margin-top: 60px;
+        }
+    }
+    
+    </style>
+        <div class="wrap" align="center">
+        <h1>WAIT A SEC...</h1>
+        <p>You're currently in the lobby. Please hold on for a moment while we search for a partner for you.</p></div>
+        <div class="gif" align="center" >
+        <img src="https://setgis.net/images/among_us_walking.gif"  width=40% alt="Searching"></div>
+    
+    <form autocomplete="off">
+        <input type="hidden" name="csrfmiddlewaretoken" value={{csrf_token}} />
+        <input type="hidden" name="username" id="username" value={{user}} />
+        <input type="hidden" name="room_id" id="room_id" value={{room}} />
+    </form>
+
+    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+
+
+
+
+  <script>
+  let count=0
+        $(document).ready(function() {
+  setInterval(function() {
+    count +=1
+    if (count===30) {
+        alert("No user found")
+
+        $.ajax({
+      type: 'POST',
+      url: '/removeroom',
+      data: {
+        username: $('#username').val(),
+        room_id: $('#room_id').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      }
+    );
+        window.location.href = '/chat';
+    }
+    
+    $.ajax({
+      type: 'POST',
+      url: '/lobbyuser',
+      data: {
+        username: $('#username').val(),
+        room_id: $('#room_id').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data) {
+        // Check if the room status is True
+        if (data.status) {
+          // Redirect the user to the game page
+          window.location.href = '/' + data.room_id + '/?username=' + data.username;
+        
+        }
+      }
+    });
+  }, 1000);
+});
+window.addEventListener('beforeunload', function (e) {
+  $.ajax({
+      type: 'POST',
+      url: '/removeroom',
+      data: {
+        username: $('#username').val(),
+        room_id: $('#room_id').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      }
+    );
+});
+
+  </script>
+</body>
+
+</html>
